@@ -17,7 +17,7 @@ export class SecureCryptoUtils {
                 masterKeyData = new Uint8Array(hexKey.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)));
             } else {
                 console.log('✅ Master key found, loading...');
-                masterKeyData = await SecureKeyManager.getMasterKey(password);
+                masterKeyData = await SecureKeyManager.initializeOrGetMasterKey(password);
             }
 
             // Import the key for use with Web Crypto API
