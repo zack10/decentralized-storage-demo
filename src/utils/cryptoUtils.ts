@@ -1,4 +1,4 @@
-import {SecureKeyManager} from './keyManager';
+import { SecureKeyManager } from './keyManager';
 
 export class SecureCryptoUtils {
     private static cryptoKey: CryptoKey | null = null;
@@ -23,7 +23,7 @@ export class SecureCryptoUtils {
             // Import the key for use with Web Crypto API
             this.cryptoKey = await crypto.subtle.importKey(
                 'raw',
-                masterKeyData,
+                masterKeyData as BufferSource,
                 'AES-GCM',
                 false,
                 ['encrypt', 'decrypt']
@@ -63,9 +63,9 @@ export class SecureCryptoUtils {
         try {
             const iv = crypto.getRandomValues(new Uint8Array(12)); // AES-GCM IV
             const encrypted = await crypto.subtle.encrypt(
-                {name: "AES-GCM", iv},
+                { name: "AES-GCM", iv },
                 this.cryptoKey,
-                data
+                data as BufferSource
             );
 
             // Combine IV + encrypted data
@@ -100,9 +100,9 @@ export class SecureCryptoUtils {
             const encrypted = data.slice(12);
 
             const decrypted = await crypto.subtle.decrypt(
-                {name: "AES-GCM", iv},
+                { name: "AES-GCM", iv },
                 this.cryptoKey,
-                encrypted
+                encrypted as BufferSource
             );
 
             return new Uint8Array(decrypted);
@@ -150,7 +150,7 @@ export class SecureCryptoUtils {
 
     // Utility: Verify data integrity
     static async calculateHash(data: Uint8Array): Promise<string> {
-        const hash = await crypto.subtle.digest('SHA-256', data);
+        const hash = await crypto.subtle.digest('SHA-256', data as BufferSource);
         return Array.from(new Uint8Array(hash))
             .map(b => b.toString(16).padStart(2, '0'))
             .join('');

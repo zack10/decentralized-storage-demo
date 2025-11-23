@@ -1,9 +1,9 @@
 // src/utils/chunkUtils.ts
 
-import {CHUNK_SIZE} from "../config";
+import { CHUNK_SIZE } from "../config";
 
 export async function generateKey(): Promise<CryptoKey> {
-    return crypto.subtle.generateKey({name: 'AES-GCM', length: 256}, true, ['encrypt', 'decrypt']);
+    return crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
 }
 
 export function generateIV(): Uint8Array {
@@ -11,11 +11,11 @@ export function generateIV(): Uint8Array {
 }
 
 export async function encryptChunk(chunk: Uint8Array, key: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> {
-    return crypto.subtle.encrypt({name: 'AES-GCM', iv}, key, chunk);
+    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv as BufferSource }, key, chunk as BufferSource);
 }
 
 export async function decryptChunk(data: ArrayBuffer, key: CryptoKey, iv: Uint8Array): Promise<ArrayBuffer> {
-    return crypto.subtle.decrypt({name: 'AES-GCM', iv}, key, data);
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv as BufferSource }, key, data);
 }
 
 export const splitFile = (file: File): Blob[] => {

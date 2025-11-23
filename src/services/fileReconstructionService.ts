@@ -1,6 +1,6 @@
 // services/fileReconstructionService.ts
-import {SecureCryptoUtils} from "../utils/cryptoUtils";
-import {DownloadManager} from "../utils/downloadManager";
+import { SecureCryptoUtils } from "../utils/cryptoUtils";
+import { DownloadManager } from "../utils/downloadManager";
 
 export class FileReconstructionService {
     static async reconstructFromArchiveV0(archiveFile: File) {
@@ -19,7 +19,7 @@ export class FileReconstructionService {
         }
 
         const reconstructed = SecureCryptoUtils.combineChunks(decryptedChunks);
-        const blob = new Blob([reconstructed]);
+        const blob = new Blob([reconstructed as any]);
 
         await DownloadManager.downloadWithDelay(
             blob,
@@ -91,7 +91,7 @@ export class FileReconstructionService {
             }
         }
 
-        const blob = new Blob([reconstructed]);
+        const blob = new Blob([reconstructed as any]);
         await DownloadManager.downloadWithDelay(
             blob,
             `${metadata.originalFileName}_reconstructed.${metadata.originalExtension}`,
@@ -142,7 +142,7 @@ export class FileReconstructionService {
 
         // Reconstruct file
         const reconstructed = SecureCryptoUtils.combineChunks(decryptedChunks);
-        const blob = new Blob([reconstructed]);
+        const blob = new Blob([reconstructed as any]);
 
         await DownloadManager.downloadWithDelay(
             blob,
@@ -150,6 +150,6 @@ export class FileReconstructionService {
             0
         );
 
-        return {success: true, message: 'File reconstructed from ZIP!'};
+        return { success: true, message: 'File reconstructed from ZIP!' };
     }
 }

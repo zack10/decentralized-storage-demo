@@ -6,7 +6,17 @@ export class SecureKeyManager {
 
     // Generate a new master key and store it securely
     static async generateAndStoreMasterKey(password?: string): Promise<string> {
+        function isCryptoAvailable() {
+            return window.crypto && window.crypto.subtle &&
+                (window.location.protocol === 'https:' ||
+                    window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1');
+        }
+
         try {
+            if (!isCryptoAvailable()) {
+                throw new Error('Web Crypto API is not available. Please use HTTPS or localhost.');
+            }
             // Generate a cryptographically secure random key
             const keyMaterial = crypto.getRandomValues(new Uint8Array(32));
 
@@ -334,7 +344,7 @@ export class SecureKeyManager {
                 }
 
                 // Create new object store
-                const objectStore = db.createObjectStore('keys');
+                db.createObjectStore('keys');
                 console.log('Object store "keys" created successfully');
             };
 
