@@ -247,7 +247,7 @@ export class SecureKeyManager {
         const passwordKey = await crypto.subtle.importKey(
             'raw',
             encoder.encode(password),
-            {name: 'PBKDF2'},
+            { name: 'PBKDF2' },
             false,
             ['deriveKey']
         );
@@ -261,16 +261,15 @@ export class SecureKeyManager {
                 hash: 'SHA-256'
             },
             passwordKey,
-            {name: 'AES-GCM', length: 256},
+            { name: 'AES-GCM', length: 256 },
             false,
             ['encrypt']
         );
-
         const iv = crypto.getRandomValues(new Uint8Array(12));
         const encrypted = await crypto.subtle.encrypt(
-            {name: 'AES-GCM', iv: iv},
+            { name: 'AES-GCM', iv: iv },
             derivedKey,
-            keyMaterial
+            keyMaterial as BufferSource
         );
 
         // Combine salt + iv + encrypted data
@@ -293,7 +292,7 @@ export class SecureKeyManager {
         const passwordKey = await crypto.subtle.importKey(
             'raw',
             encoder.encode(password),
-            {name: 'PBKDF2'},
+            { name: 'PBKDF2' },
             false,
             ['deriveKey']
         );
@@ -306,13 +305,13 @@ export class SecureKeyManager {
                 hash: 'SHA-256'
             },
             passwordKey,
-            {name: 'AES-GCM', length: 256},
+            { name: 'AES-GCM', length: 256 },
             false,
             ['decrypt']
         );
 
         const decrypted = await crypto.subtle.decrypt(
-            {name: 'AES-GCM', iv: iv},
+            { name: 'AES-GCM', iv: iv },
             derivedKey,
             ciphertext
         );
@@ -508,7 +507,7 @@ export class SecureKeyManager {
     }
 
     private static async calculateChecksum(data: Uint8Array): Promise<string> {
-        const hash = await crypto.subtle.digest('SHA-256', data);
+        const hash = await crypto.subtle.digest('SHA-256', data as unknown as BufferSource);
         return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 

@@ -16,9 +16,10 @@ import {
     Radio,
     RadioGroup,
     Switch,
-    TextField
+    TextField,
+    Snackbar,
+    Alert as MuiAlert
 } from "@mui/material";
-
 import {
     Archive,
     Assessment,
@@ -58,6 +59,14 @@ interface FileUploaderTemplateProps {
     onDownloadSingleFile: (chunk: any, index: number) => void;
     onDownloadAllRemaining: () => void;
     onThemeToggle: () => void;
+
+    // Notification props
+    notification: {
+        open: boolean;
+        message: string;
+        severity: 'success' | 'info' | 'warning' | 'error';
+    };
+    onCloseNotification: () => void;
 }
 
 export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
@@ -79,11 +88,21 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
                                                                               onDownloadMethodChange,
                                                                               onDownloadSingleFile,
                                                                               onDownloadAllRemaining,
-                                                                              onThemeToggle
+                                                                              onThemeToggle,
+                                                                              notification,
+                                                                              onCloseNotification
                                                                           }) => {
     return (
-        <div style={{maxWidth: '900px', margin: '0 auto', padding: '20px'}}>
-            {/* Theme Toggle */}
+        <div style={{
+            maxWidth: '800px',
+            margin: '0 auto',
+            padding: '20px',
+            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+            backgroundColor: darkMode ? '#121212' : '#f5f5f5',
+            minHeight: '100vh',
+            color: darkMode ? 'white' : 'black',
+            transition: 'all 0.3s ease'
+        }}>
             <Box sx={{
                 display: 'flex',
                 justifyContent: 'flex-end',
@@ -386,6 +405,22 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar
+                open={notification?.open}
+                autoHideDuration={6000}
+                onClose={onCloseNotification}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <MuiAlert
+                    onClose={onCloseNotification}
+                    severity={notification?.severity || 'info'}
+                    sx={{ width: '100%' }}
+                    variant="filled"
+                >
+                    {notification?.message}
+                </MuiAlert>
+            </Snackbar>
         </div>
     );
 };

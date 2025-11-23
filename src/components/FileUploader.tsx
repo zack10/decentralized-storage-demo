@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from 'react';
-import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
-import {useFileUploader} from "../hooks/useFileUploader";
-import {FileEncryptionService} from "../services/fileEncryptionService";
-import {DownloadManager} from "../utils/downloadManager";
-import {FileReconstructionService} from "../services/fileReconstructionService";
-import {FileUploaderTemplate} from "./FileUploaderTemplate";
+import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import React, { useEffect, useState } from 'react';
+import { useFileUploader } from "../hooks/useFileUploader";
+import { FileEncryptionService } from "../services/fileEncryptionService";
+import { FileReconstructionService } from "../services/fileReconstructionService";
+import { DownloadManager } from "../utils/downloadManager";
+import { FileUploaderTemplate } from "./FileUploaderTemplate";
 
 export const FileUploader: React.FC = () => {
     // Theme state
@@ -12,6 +12,29 @@ export const FileUploader: React.FC = () => {
         const saved = localStorage.getItem('darkMode');
         return saved ? JSON.parse(saved) : false;
     });
+
+    // Notification state
+    const [notification, setNotification] = useState<{
+        open: boolean;
+        message: string;
+        severity: 'success' | 'info' | 'warning' | 'error';
+    }>({
+        open: false,
+        message: '',
+        severity: 'info'
+    });
+
+    const showNotification = (message: string, severity: 'success' | 'info' | 'warning' | 'error' = 'info') => {
+        setNotification({
+            open: true,
+            message,
+            severity
+        });
+    };
+
+    const handleCloseNotification = () => {
+        setNotification(prev => ({ ...prev, open: false }));
+    };
 
     // File uploader hook
     const {
@@ -33,7 +56,7 @@ export const FileUploader: React.FC = () => {
         setDownloadMethod,
         setPendingChunks,
         handlePasswordSubmit
-    } = useFileUploader();
+    } = useFileUploader(showNotification);
 
     // Create theme based on dark mode state
     const theme = createTheme({
@@ -60,57 +83,107 @@ export const FileUploader: React.FC = () => {
         setPendingChunks([]);
 
         try {
-            const {encryptedChunks, metadata} = await FileEncryptionService.encryptFile(
+            // Use the generator for streaming processing
+            const generator = FileEncryptionService.encryptFileGenerator(
                 file,
                 CONSTANTS.CHUNK_SIZE,
                 setDownloadProgress
             );
 
-            setCurrentMetadata(metadata);
-            setPendingChunks(encryptedChunks);
+            const chunksList: { blob: Blob; filename: string; downloaded?: boolean }[] = [];
+            let metadata: any = null;
 
-            setDownloadProgress({
-                current: 0,
-                total: encryptedChunks.length,
-                status: 'downloading',
-                currentFile: 'Starting downloads...'
-            });
+            if (downloadMethod === 'auto') {
+                setDownloadProgress({
+                    current: 0,
+                    total: 0,
+                    status: 'downloading',
+                    currentFile: 'Starting streaming download...'
+                });
 
-            // Handle different download methods
-            if (downloadMethod === 'zip') {
-                await DownloadManager.createZipDownload(encryptedChunks.slice(0, -1), metadata);
-            } else if (downloadMethod === 'auto') {
-                await DownloadManager.downloadInBatches(
-                    encryptedChunks,
-                    CONSTANTS.MAX_CONCURRENT_DOWNLOADS,
-                    (current, currentFile) => {
-                        setDownloadProgress(prev => prev ? {
-                            ...prev,
-                            current,
-                            currentFile
-                        } : null);
-                    }
-                );
+                let chunkIndex = 0;
+                // Iterate over the generator
+                // We use a manual iterator to get the return value (metadata) at the end
+                const iterator = generator[Symbol.asyncIterator]();
+                let result = await iterator.next();
+
+                while (!result.done) {
+                    const chunk = result.value;
+
+                    // Download immediately
+                    await DownloadManager.downloadWithDelay(chunk.blob, chunk.filename, 0);
+
+                    // Add to list but WITHOUT the blob to save memory
+                    chunksList.push({ ...chunk, blob: null as any, downloaded: true });
+
+                    chunkIndex++;
+                    const currentIndex = chunkIndex; // Fix no-loop-func
+                    setDownloadProgress(prev => prev ? {
+                        ...prev,
+                        current: currentIndex,
+                        currentFile: `Downloaded ${chunk.filename}`
+                    } : null);
+
+                    result = await iterator.next();
+                }
+
+                metadata = result.value;
+
+            } else {
+                // Manual or Zip: We MUST keep the blobs
+                // Note: This will still crash for 3GB files if the browser can't handle it
+                // But "Auto" is the recommended way for large files
+                const iterator = generator[Symbol.asyncIterator]();
+                let result = await iterator.next();
+
+                while (!result.done) {
+                    chunksList.push(result.value);
+                    result = await iterator.next();
+                }
+                metadata = result.value;
             }
 
+            setCurrentMetadata(metadata);
+
+            // Add metadata file to list
+            const metadataBlob = new Blob([JSON.stringify(metadata, null, 2)], { type: 'application/json' });
+            const metadataFilename = `${metadata.originalFileName}_metadata.json`;
+
+            if (downloadMethod === 'auto') {
+                await DownloadManager.downloadWithDelay(metadataBlob, metadataFilename, 0);
+                chunksList.push({ blob: null as any, filename: metadataFilename, downloaded: true });
+            } else {
+                chunksList.push({ blob: metadataBlob, filename: metadataFilename });
+            }
+
+            setPendingChunks([...chunksList]);
+
             setDownloadProgress({
-                current: encryptedChunks.length,
-                total: encryptedChunks.length,
+                current: chunksList.length,
+                total: chunksList.length,
                 status: 'complete',
                 currentFile: 'All downloads complete!'
             });
 
+            // Handle Zip download if selected (requires all chunks, so we kept them in the else block above)
+            if (downloadMethod === 'zip') {
+                await DownloadManager.createZipDownload(chunksList.slice(0, -1), metadata);
+            }
+
             if (downloadMethod !== 'manual') {
-                alert(`✅ File successfully encrypted and split!\n\n` +
+                const message = `✅ File successfully encrypted and split!\n` +
                     `Original size: ${(file.size / 1024 / 1024).toFixed(2)} MB\n` +
-                    `Total files: ${encryptedChunks.length} (${metadata.totalChunks} chunks + metadata)\n` +
-                    `Download method: ${downloadMethod}\n\n` +
-                    `Keep ALL files for reconstruction!`);
+                    `Total files: ${chunksList.length} (${metadata.totalChunks} chunks + metadata)\n` +
+                    `Download method: ${downloadMethod}\n` +
+                    `Keep ALL files for reconstruction!`;
+
+                console.log(message);
+                showNotification('File successfully encrypted and split!', 'success');
             }
 
         } catch (error: any) {
             console.error('❌ Upload failed:', error);
-            alert('❌ Upload failed: ' + error.message);
+            showNotification('Upload failed: ' + error.message, 'error');
             setDownloadProgress({
                 current: 0,
                 total: 0,
@@ -132,27 +205,35 @@ export const FileUploader: React.FC = () => {
 
             if (archiveFile) {
                 const result = await FileReconstructionService.reconstructFromArchive(archiveFile);
-                alert(result.message);
+                console.log(result.message);
+                showNotification(result.message, 'success');
             } else {
                 const result = await FileReconstructionService.reconstructFromChunks(files);
-                alert(`✅ File reconstructed successfully!\n\n` +
+                const message = `✅ File reconstructed successfully!\n` +
                     `Reconstructed size: ${(result.reconstructed.length / 1024 / 1024).toFixed(2)} MB\n` +
                     `Original size: ${(result.metadata.originalSize / 1024 / 1024).toFixed(2)} MB\n` +
                     `Hash verified: ${result.hashMatch ? '✅' : '❌'}\n` +
-                    `Chunks processed: ${result.chunkFiles.length}/${result.metadata.totalChunks}`);
+                    `Chunks processed: ${result.chunkFiles.length}/${result.metadata.totalChunks}`;
+
+                console.log(message);
+                showNotification('File reconstructed successfully!', 'success');
             }
         } catch (error: any) {
             console.error('❌ Reconstruction failed:', error);
-            alert('❌ Reconstruction failed: ' + error.message);
+            showNotification('Reconstruction failed: ' + error.message, 'error');
         } finally {
             setIsProcessing(false);
         }
     };
 
     const handleDownloadSingleFile = async (chunk: { blob: Blob; filename: string }, index: number) => {
+        if (!chunk.blob) {
+            showNotification('File already downloaded and cleared from memory', 'info');
+            return;
+        }
         await DownloadManager.downloadWithDelay(chunk.blob, chunk.filename, 0);
         const updatedChunks = [...pendingChunks];
-        updatedChunks[index] = {...updatedChunks[index], downloaded: true} as any;
+        updatedChunks[index] = { ...updatedChunks[index], downloaded: true } as any;
         setPendingChunks(updatedChunks);
     };
 
@@ -160,7 +241,7 @@ export const FileUploader: React.FC = () => {
         const remaining = pendingChunks.filter((_, index) => !(pendingChunks[index] as any).downloaded);
 
         if (remaining.length === 0) {
-            alert('All files already downloaded!');
+            showNotification('All files already downloaded!', 'info');
             return;
         }
 
@@ -172,9 +253,9 @@ export const FileUploader: React.FC = () => {
                 () => {
                 } // No progress update needed for manual downloads
             );
-            alert(`✅ Downloaded ${remaining.length} remaining files!`);
+            showNotification(`Downloaded ${remaining.length} remaining files!`, 'success');
         } catch (error: any) {
-            alert('❌ Failed to download remaining files: ' + error.message);
+            showNotification('Failed to download remaining files: ' + error.message, 'error');
         } finally {
             setIsProcessing(false);
         }
@@ -190,7 +271,7 @@ export const FileUploader: React.FC = () => {
 
     return (
         <ThemeProvider theme={theme}>
-            <CssBaseline/>
+            <CssBaseline />
             <FileUploaderTemplate
                 isInitialized={isInitialized}
                 isProcessing={isProcessing}
@@ -211,6 +292,8 @@ export const FileUploader: React.FC = () => {
                 onDownloadSingleFile={handleDownloadSingleFile}
                 onDownloadAllRemaining={handleDownloadAllRemaining}
                 onThemeToggle={handleThemeToggle}
+                notification={notification}
+                onCloseNotification={handleCloseNotification}
             />
         </ThemeProvider>
     );

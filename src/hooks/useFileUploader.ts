@@ -1,7 +1,7 @@
 // hooks/useFileUploader.ts
-import {useEffect, useState} from 'react';
-import {SecureKeyManager} from '../utils/keyManager';
-import {SecureCryptoUtils} from '../utils/cryptoUtils';
+import { useEffect, useState } from 'react';
+import { SecureKeyManager } from '../utils/keyManager';
+import { SecureCryptoUtils } from '../utils/cryptoUtils';
 
 interface FileMetadata {
     originalFileName: string;
@@ -20,7 +20,7 @@ interface DownloadProgress {
     currentFile: string;
 }
 
-export const useFileUploader = () => {
+export const useFileUploader = (onNotification?: (message: string, severity: 'success' | 'info' | 'warning' | 'error') => void) => {
     const [isInitialized, setIsInitialized] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [downloadProgress, setDownloadProgress] = useState<DownloadProgress | null>(null);
@@ -73,9 +73,9 @@ export const useFileUploader = () => {
             setPassword('');
 
             if (initializationMode === 'setup') {
-                alert('✅ Secure key management system initialized!');
+                onNotification?.('Secure key management system initialized!', 'success');
             } else {
-                alert('✅ System unlocked successfully!');
+                onNotification?.('System unlocked successfully!', 'success');
             }
         } catch (error: any) {
             setPasswordError('Failed to initialize: ' + error.message);
