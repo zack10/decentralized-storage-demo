@@ -1,12 +1,4 @@
-// config.ts - Updated configuration (no more random keys!)
 export const CHUNK_SIZE = 1024 * 1024; // 1MB
-
-// ❌ OLD - DON'T USE THIS ANYMORE:
-// export const ENCRYPTION_KEY = crypto.getRandomValues(new Uint8Array(32));
-
-// ✅ NEW - Key management is now handled by SecureKeyManager
-// The encryption key is generated once, stored securely, and retrieved as needed
-// No more random keys that change every time!
 
 // Optional: Default chunk size options
 export const CHUNK_SIZE_OPTIONS = {
