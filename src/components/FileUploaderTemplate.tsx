@@ -35,6 +35,7 @@ import {
     Loop,
     Security
 } from "@mui/icons-material";
+import './FileUploader.css';
 
 interface FileUploaderTemplateProps {
     // State props
@@ -70,100 +71,68 @@ interface FileUploaderTemplateProps {
 }
 
 export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
-                                                                              isInitialized,
-                                                                              isProcessing,
-                                                                              downloadProgress,
-                                                                              currentMetadata,
-                                                                              showPasswordDialog,
-                                                                              password,
-                                                                              passwordError,
-                                                                              initializationMode,
-                                                                              downloadMethod,
-                                                                              pendingChunks,
-                                                                              darkMode,
-                                                                              onFileUpload,
-                                                                              onFileReconstruction,
-                                                                              onPasswordChange,
-                                                                              onPasswordSubmit,
-                                                                              onDownloadMethodChange,
-                                                                              onDownloadSingleFile,
-                                                                              onDownloadAllRemaining,
-                                                                              onThemeToggle,
-                                                                              notification,
-                                                                              onCloseNotification
-                                                                          }) => {
+    isInitialized,
+    isProcessing,
+    downloadProgress,
+    currentMetadata,
+    showPasswordDialog,
+    password,
+    passwordError,
+    initializationMode,
+    downloadMethod,
+    pendingChunks,
+    darkMode,
+    onFileUpload,
+    onFileReconstruction,
+    onPasswordChange,
+    onPasswordSubmit,
+    onDownloadMethodChange,
+    onDownloadSingleFile,
+    onDownloadAllRemaining,
+    onThemeToggle,
+    notification,
+    onCloseNotification
+}) => {
     return (
-        <div style={{
-            maxWidth: '800px',
-            margin: '0 auto',
-            padding: '20px',
-            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-            backgroundColor: darkMode ? '#121212' : '#f5f5f5',
-            minHeight: '100vh',
-            color: darkMode ? 'white' : 'black',
-            transition: 'all 0.3s ease'
-        }}>
-            <Box sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-                mb: 2,
-                gap: 1
-            }}>
-                <LightMode sx={{color: darkMode ? 'text.secondary' : 'warning.main'}}/>
+        <div className={`file-uploader-container ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+            <Box className="theme-toggle-box">
+                <LightMode sx={{ color: darkMode ? 'text.secondary' : 'warning.main' }} />
                 <Switch
                     checked={darkMode}
                     onChange={onThemeToggle}
                     color="default"
                 />
-                <DarkMode sx={{color: darkMode ? 'primary.main' : 'text.secondary'}}/>
+                <DarkMode sx={{ color: darkMode ? 'primary.main' : 'text.secondary' }} />
             </Box>
 
             <Card>
                 <CardContent>
-                    <div style={{padding: '20px'}}>
-                        <h1 style={{
-                            textAlign: 'center',
-                            marginBottom: '30px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '10px'
-                        }}>
-                            <Security/> Enhanced Secure File Splitter
+                    <div className="card-content-padding">
+                        <h1 className="main-header">
+                            <Security /> Enhanced Secure File Splitter
                         </h1>
 
                         {!isInitialized ? (
-                            <Alert severity="warning" style={{marginBottom: '20px'}}>
+                            <Alert severity="warning" className="alert-spacing">
                                 System not initialized. Please set up your encryption key first.
                             </Alert>
                         ) : (
-                            <Alert severity="success"
-                                   style={{
-                                       marginBottom: '20px',
-                                       display: 'flex',
-                                       alignItems: 'center',
-                                       gap: '8px'
-                                   }}>
+                            <Alert severity="success" className="alert-spacing alert-with-icon">
                                 Secure encryption system is active and ready.
                             </Alert>
                         )}
 
-                        <div style={{marginBottom: '30px'}}>
-                            <h2 style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                                <CloudUpload/> Encrypt & Split File
+                        <div className="section-spacing">
+                            <h2 className="section-header">
+                                <CloudUpload /> Encrypt & Split File
                             </h2>
 
                             {/* Download Method Selection */}
-                            <FormControl component="fieldset" style={{
-                                marginBottom: '15px',
-                                padding: '10px',
-                                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#f8f9fa',
-                                borderRadius: '5px',
-                                width: '100%',
-                                border: darkMode ? '1px solid rgba(255, 255, 255, 0.12)' : 'none'
-                            }}>
-                                <FormLabel component="legend" style={{fontWeight: 'bold', marginBottom: '10px'}}>
+                            <FormControl
+                                component="fieldset"
+                                className={`download-method-control ${darkMode ? 'dark-mode' : 'light-mode'}`}
+                            >
+                                <FormLabel component="legend" className="download-method-label">
                                     Download Method:
                                 </FormLabel>
                                 <RadioGroup
@@ -173,19 +142,19 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
                                 >
                                     <FormControlLabel
                                         value="auto"
-                                        control={<Radio/>}
+                                        control={<Radio />}
                                         label="Auto (Batched)"
-                                        style={{marginRight: '20px'}}
+                                        className="radio-button-spacing"
                                     />
                                     <FormControlLabel
                                         value="manual"
-                                        control={<Radio/>}
+                                        control={<Radio />}
                                         label="Manual (Click each)"
-                                        style={{marginRight: '20px'}}
+                                        className="radio-button-spacing"
                                     />
                                     <FormControlLabel
                                         value="zip"
-                                        control={<Radio/>}
+                                        control={<Radio />}
                                         label="Archive (JSON)"
                                     />
                                 </RadioGroup>
@@ -195,32 +164,19 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
                                 type="file"
                                 onChange={onFileUpload}
                                 disabled={!isInitialized || isProcessing}
-                                style={{
-                                    padding: '10px',
-                                    border: '2px dashed #ccc',
-                                    borderRadius: '5px',
-                                    width: '100%',
-                                    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'white',
-                                    color: darkMode ? 'white' : 'black'
-                                }}
+                                className={`file-input ${darkMode ? 'dark-mode' : 'light-mode'}`}
                             />
 
                             {/* Progress Display */}
                             {downloadProgress && (
-                                <div style={{
-                                    marginTop: '15px',
-                                    padding: '15px',
-                                    backgroundColor: darkMode ? 'rgba(33, 150, 243, 0.1)' : '#f0f8ff',
-                                    borderRadius: '5px',
-                                    border: darkMode ? '1px solid rgba(33, 150, 243, 0.3)' : 'none'
-                                }}>
-                                    <h4 style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                                        <Assessment/> Progress: {downloadProgress.status.toUpperCase()}
+                                <div className={`progress-container ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+                                    <h4 className="progress-header">
+                                        <Assessment /> Progress: {downloadProgress.status.toUpperCase()}
                                     </h4>
                                     <LinearProgress
                                         variant="determinate"
                                         value={(downloadProgress.current / downloadProgress.total) * 100}
-                                        style={{marginBottom: '10px'}}
+                                        className="progress-bar-spacing"
                                     />
                                     <p>{downloadProgress.current}/{downloadProgress.total} - {downloadProgress.currentFile}</p>
                                 </div>
@@ -228,45 +184,30 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
 
                             {/* Manual Download Controls */}
                             {downloadMethod === 'manual' && pendingChunks.length > 0 && (
-                                <div style={{
-                                    marginTop: '15px',
-                                    padding: '15px',
-                                    backgroundColor: darkMode ? 'rgba(255, 193, 7, 0.1)' : '#fff8e1',
-                                    borderRadius: '5px',
-                                    border: darkMode ? '1px solid rgba(255, 193, 7, 0.3)' : 'none'
-                                }}>
-                                    <h4 style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                                        <Archive/> Ready for Download ({pendingChunks.length} files)
+                                <div className={`manual-download-container ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+                                    <h4 className="section-header">
+                                        <Archive /> Ready for Download ({pendingChunks.length} files)
                                     </h4>
                                     <Button
                                         variant="contained"
                                         onClick={onDownloadAllRemaining}
                                         disabled={isProcessing}
-                                        style={{marginBottom: '10px'}}
-                                        startIcon={<GetApp/>}
+                                        className="download-button-spacing"
+                                        startIcon={<GetApp />}
                                     >
                                         Download All
                                         ({pendingChunks.filter((_, i) => !(pendingChunks[i] as any).downloaded).length} remaining)
                                     </Button>
 
-                                    <div style={{maxHeight: '200px', overflowY: 'auto'}}>
+                                    <div className="chunk-list">
                                         {pendingChunks.map((chunk, index) => (
-                                            <div key={index} style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                padding: '5px 0',
-                                                borderBottom: darkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #eee'
-                                            }}>
-                                                <span style={{
-                                                    fontSize: '12px',
-                                                    color: (chunk as any).downloaded ? '#28a745' : (darkMode ? 'white' : '#333'),
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '5px'
-                                                }}>
-                                                    {(chunk as any).downloaded ? <CheckCircle fontSize="small"/> :
-                                                        <Description fontSize="small"/>} {chunk.filename}
+                                            <div
+                                                key={index}
+                                                className={`chunk-item ${darkMode ? 'dark-mode' : 'light-mode'}`}
+                                            >
+                                                <span className={`chunk-filename ${(chunk as any).downloaded ? 'downloaded' : ''} ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+                                                    {(chunk as any).downloaded ? <CheckCircle fontSize="small" /> :
+                                                        <Description fontSize="small" />} {chunk.filename}
                                                 </span>
                                                 <Button
                                                     size="small"
@@ -283,11 +224,11 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
                             )}
                         </div>
 
-                        <div style={{marginBottom: '30px'}}>
-                            <h2 style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                                <CloudDownload/> Reconstruct File
+                        <div className="section-spacing">
+                            <h2 className="section-header">
+                                <CloudDownload /> Reconstruct File
                             </h2>
-                            <p style={{color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#666', fontSize: '14px'}}>
+                            <p className={`reconstruct-instructions ${darkMode ? 'dark-mode' : 'light-mode'}`}>
                                 Select ALL chunk files (.enc) AND metadata.json, OR select the archive (.json) file.
                             </p>
                             <input
@@ -296,42 +237,23 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
                                 multiple
                                 disabled={!isInitialized || isProcessing}
                                 accept=".enc,.json"
-                                style={{
-                                    padding: '10px',
-                                    border: '2px dashed #ccc',
-                                    borderRadius: '5px',
-                                    width: '100%',
-                                    backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : 'white',
-                                    color: darkMode ? 'white' : 'black'
-                                }}
+                                className={`file-input ${darkMode ? 'dark-mode' : 'light-mode'}`}
                             />
                         </div>
 
                         {isProcessing && (
-                            <Alert severity="info"
-                                   style={{
-                                       marginBottom: '20px',
-                                       display: 'flex',
-                                       alignItems: 'center',
-                                       gap: '8px'
-                                   }}>
-                                <div style={{display: "flex", gap: "1vh", alignItems: "center"}}>
-                                    <Loop className="rotating"/> Processing... Please wait and don't close the
+                            <Alert severity="info" className="alert-spacing alert-with-icon">
+                                <div className="processing-content">
+                                    <Loop className="rotating" /> Processing... Please wait and don't close the
                                     browser.
                                 </div>
                             </Alert>
                         )}
 
                         {currentMetadata && (
-                            <div style={{
-                                marginTop: '20px',
-                                padding: '15px',
-                                backgroundColor: darkMode ? 'rgba(255, 255, 255, 0.05)' : '#f8f9fa',
-                                borderRadius: '5px',
-                                border: darkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid #dee2e6'
-                            }}>
-                                <h3 style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                                    <Description/> Last Processed File Info:
+                            <div className={`metadata-container ${darkMode ? 'dark-mode' : 'light-mode'}`}>
+                                <h3 className="section-header">
+                                    <Description /> Last Processed File Info:
                                 </h3>
                                 <p>
                                     <strong>File:</strong> {currentMetadata.originalFileName}.{currentMetadata.originalExtension}
@@ -349,20 +271,19 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
             </Card>
 
             {/* Password Setup/Unlock Dialog */}
-            <Dialog open={showPasswordDialog} onClose={() => {
-            }} maxWidth="sm" fullWidth>
-                <DialogTitle style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+            <Dialog open={showPasswordDialog} onClose={() => { }} maxWidth="sm" fullWidth>
+                <DialogTitle className="section-header">
                     {initializationMode === 'setup' ? (
-                        <><Lock/> Set Up Encryption</>
+                        <><Lock /> Set Up Encryption</>
                     ) : (
-                        <><LockOpen/> Unlock System</>
+                        <><LockOpen /> Unlock System</>
                     )}
                 </DialogTitle>
                 <DialogContent>
-                    <div style={{padding: '10px 0'}}>
+                    <div className="dialog-content-padding">
                         {initializationMode === 'setup' ? (
                             <>
-                                <Alert severity="info" style={{marginBottom: '20px'}}>
+                                <Alert severity="info" className="password-instructions">
                                     This is your first time using the secure file splitter.
                                     Please create a strong password to protect your encryption key.
                                 </Alert>
@@ -374,7 +295,7 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
                                 </ul>
                             </>
                         ) : (
-                            <Alert severity="warning" style={{marginBottom: '20px'}}>
+                            <Alert severity="warning" className="password-instructions">
                                 Enter your password to unlock the encryption system.
                             </Alert>
                         )}
@@ -398,8 +319,8 @@ export const FileUploaderTemplate: React.FC<FileUploaderTemplateProps> = ({
                         onClick={onPasswordSubmit}
                         variant="contained"
                         disabled={isProcessing || !password.trim()}
-                        startIcon={isProcessing ? <Loop className="rotating"/> : (initializationMode === 'setup' ?
-                            <Lock/> : <LockOpen/>)}
+                        startIcon={isProcessing ? <Loop className="rotating" /> : (initializationMode === 'setup' ?
+                            <Lock /> : <LockOpen />)}
                     >
                         {isProcessing ? 'Processing...' : (initializationMode === 'setup' ? 'Set Up' : 'Unlock')}
                     </Button>

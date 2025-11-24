@@ -1,0 +1,256 @@
+/* Main Container */
+.file-uploader-container {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 20px;
+	font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+	min-height: 100vh;
+	transition: all 0.3s ease;
+}
+
+.file-uploader-container.light-mode {
+	background-color: #f5f5f5;
+	color: black;
+}
+
+.file-uploader-container.dark-mode {
+	background-color: #121212;
+	color: white;
+}
+
+/* Theme Toggle */
+.theme-toggle-box {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	margin-bottom: 16px;
+	gap: 8px;
+}
+
+/* Card Content */
+.card-content-padding {
+	padding: 20px;
+}
+
+/* Header */
+.main-header {
+	text-align: center;
+	margin-bottom: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+}
+
+/* Alert Spacing */
+.alert-spacing {
+	margin-bottom: 20px;
+}
+
+.alert-with-icon {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Section Headers */
+.section-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Download Method Selection */
+.download-method-control {
+	margin-bottom: 15px;
+	padding: 10px;
+	border-radius: 5px;
+	width: 100%;
+}
+
+.download-method-control.light-mode {
+	background-color: #f8f9fa;
+}
+
+.download-method-control.dark-mode {
+	background-color: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.download-method-label {
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.radio-button-spacing {
+	margin-right: 20px;
+}
+
+/* File Input */
+.file-input {
+	padding: 10px;
+	border: 2px dashed #ccc;
+	border-radius: 5px;
+	width: 100%;
+}
+
+.file-input.light-mode {
+	background-color: white;
+	color: black;
+}
+
+.file-input.dark-mode {
+	background-color: rgba(255, 255, 255, 0.05);
+	color: white;
+}
+
+/* Progress Display */
+.progress-container {
+	margin-top: 15px;
+	padding: 15px;
+	border-radius: 5px;
+}
+
+.progress-container.light-mode {
+	background-color: #f0f8ff;
+}
+
+.progress-container.dark-mode {
+	background-color: rgba(33, 150, 243, 0.1);
+	border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.progress-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.progress-bar-spacing {
+	margin-bottom: 10px;
+}
+
+/* Manual Download Controls */
+.manual-download-container {
+	margin-top: 15px;
+	padding: 15px;
+	border-radius: 5px;
+}
+
+.manual-download-container.light-mode {
+	background-color: #fff8e1;
+}
+
+.manual-download-container.dark-mode {
+	background-color: rgba(255, 193, 7, 0.1);
+	border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.download-button-spacing {
+	margin-bottom: 10px;
+}
+
+.chunk-list {
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.chunk-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 5px 0;
+}
+
+.chunk-item.light-mode {
+	border-bottom: 1px solid #eee;
+}
+
+.chunk-item.dark-mode {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.chunk-filename {
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.chunk-filename.downloaded {
+	color: #28a745;
+}
+
+.chunk-filename.light-mode:not(.downloaded) {
+	color: #333;
+}
+
+.chunk-filename.dark-mode:not(.downloaded) {
+	color: white;
+}
+
+/* Section Spacing */
+.section-spacing {
+	margin-bottom: 30px;
+}
+
+/* Reconstruct Instructions */
+.reconstruct-instructions {
+	font-size: 14px;
+}
+
+.reconstruct-instructions.light-mode {
+	color: #666;
+}
+
+.reconstruct-instructions.dark-mode {
+	color: rgba(255, 255, 255, 0.7);
+}
+
+/* Processing Alert */
+.processing-content {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+/* Metadata Display */
+.metadata-container {
+	margin-top: 20px;
+	padding: 15px;
+	border-radius: 5px;
+}
+
+.metadata-container.light-mode {
+	background-color: #f8f9fa;
+	border: 1px solid #dee2e6;
+}
+
+.metadata-container.dark-mode {
+	background-color: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Dialog Content */
+.dialog-content-padding {
+	padding: 10px 0;
+}
+
+.password-instructions {
+	margin-bottom: 20px;
+}
+
+/* Rotating Animation */
+@keyframes rotate {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.rotating {
+	animation: rotate 2s linear infinite;
+}
